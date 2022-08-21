@@ -17,16 +17,18 @@ class InfoMessage:
     speed: float
     calories: float
     MESSAGE: ClassVar[str] = (
-                            'Тип тренировки: {training_type}; '
-                            'Длительность: {duration:.3f} ч.; '
-                            'Дистанция: {distance:.3f} км; '
-                            'Ср. скорость: {speed:.3f} км/ч; '
-                            'Потрачено ккал: {calories:.3f}.'
-                             )
+        'Тип тренировки: {training_type}; '
+        'Длительность: {duration:.3f} ч.; '
+        'Дистанция: {distance:.3f} км; '
+        'Ср. скорость: {speed:.3f} км/ч; '
+        'Потрачено ккал: {calories:.3f}.'
+    )
 
     def get_message(self) -> str:
-        dict = asdict(self)
-        return self.MESSAGE.format(**dict)
+        try:
+            return self.MESSAGE.format(**asdict(self))
+        except ValueError:
+            return print("Ошибка классе InfoMessage")
 
 
 class Training:
@@ -36,11 +38,11 @@ class Training:
     M_IN_KM = 1000
 
     def __init__(
-                self,
-                action: int,
-                duration: float,
-                weight: float,
-                ) -> None:
+        self,
+        action: int,
+        duration: float,
+        weight: float,
+    ) -> None:
         self.action = action
         self.duration = duration
         self.weight = weight
@@ -56,17 +58,18 @@ class Training:
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
         raise NotImplementedError(
-                'Определите run в %s.' % (self.__class__.__name__))
+            'Определите run в %s.' % (self.__class__.__name__)
+        )
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
         return InfoMessage(
-                           self.__class__.__name__,
-                           self.duration,
-                           self.get_distance(),
-                           self.get_mean_speed(),
-                           self.get_spent_calories()
-                           )
+            self.__class__.__name__,
+            self.duration,
+            self.get_distance(),
+            self.get_mean_speed(),
+            self.get_spent_calories()
+        )
 
 
 class Running(Training):
@@ -90,12 +93,12 @@ class SportsWalking(Training):
     COEFF_CALORIE_2 = 0.029
 
     def __init__(
-                self,
-                action: int,
-                duration: float,
-                weight: float,
-                height: float
-                ) -> None:
+        self,
+        action: int,
+        duration: float,
+        weight: float,
+        height: float
+    ) -> None:
         super().__init__(action, duration, weight)
         self.height = height
 
@@ -116,13 +119,13 @@ class Swimming(Training):
     COEFF_CALORIE_2 = 2
 
     def __init__(
-                self,
-                action: int,
-                duration: float,
-                weight: float,
-                length_pool: float,
-                count_pool: int
-                ) -> None:
+        self,
+        action: int,
+        duration: float,
+        weight: float,
+        length_pool: float,
+        count_pool: int
+    ) -> None:
         super().__init__(action, duration, weight)
         self.length_pool = length_pool
         self.count_pool = count_pool
@@ -142,10 +145,10 @@ class Swimming(Training):
 def read_package(workout_type: str, data: int) -> Training:
     """Прочитать данные полученные от датчиков."""
     training_dict: Dict[str, type[Training]] = {
-                                                "SWM": Swimming,
-                                                "RUN": Running,
-                                                "WLK": SportsWalking
-                                                }
+        "SWM": Swimming,
+        "RUN": Running,
+        "WLK": SportsWalking
+    }
     if workout_type not in training_dict:
         return print("Неправильные входные аргументы")
     else:
@@ -153,8 +156,11 @@ def read_package(workout_type: str, data: int) -> Training:
 
 
 def main(training: Training) -> None:
-    info = training.show_training_info()
-    print(info.get_message())
+    if isinstance(training, (Swimming, Running, SportsWalking)):
+        info = training.show_training_info()
+        print(info.get_message())
+    else:
+        print("error")
 
 
 if __name__ == '__main__':
